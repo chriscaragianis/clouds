@@ -1,8 +1,9 @@
+
 import java.util.*;
 
 int[][] mtx = new int[600][600];
 int[][] next = new int[600][600];
-int[][][] history = new int[600][600][100]; 
+ArrayList<ArrayList<ArrayList<Integer>>> history = new ArrayList<ArrayList<ArrayList<Integer>>>();  //make history an array of lists ***HA NO SUCH THING*** 
 boolean go = false;
 Random rand = new Random();
 
@@ -18,14 +19,14 @@ void update() {
       else {
         next[i][j] = mtx[i][j];
       }
-      for (int k = 99; k > 0; k--) {
-        history[i][j][k] = history[i][j][k-1];
+      for (int k = 0; k > history.get(i).get(j).size(); k++) {             //history is a sparse array
+        history.get(i).get(j).set(k, history.get(i).get(j).get(k) + 1);
+        if (history.get(i).get(j).get(k) > 99) {
+	  history.get(i).get(j).remove(k);
+        }	                                                   //do not need to copy every elt.
       }
       if (mtx[i][j] != next[i][j]) {
-        history[i][j][0] = 1;
-      }
-      else {
-        history[i][j][0] = 0;
+        history.get(i).get(j).add(1);
       }
     }
   }
@@ -42,23 +43,13 @@ int nbrSum(int i, int j) {
          mtx[i][(j+1)%600] + mtx[i][(j+599)%600];
 }
 
-int histSum(int i, int j) {
-  int sum = 0;
-  for (int k = 0; k < 100; k++) {
-    sum += history[i][j][k];
-  }
-  return sum;
-}
-
-
 void setup() {
   for (int i = 0; i < 600; i++) {
+    history.add(new ArrayList<ArrayList<Integer>>());
     for (int j = 0; j < 600; j++) {
       mtx[i][j] = 0;
       next[i][j] = 0;
-      for (int k = 0; k < 100; k++) {
-        history[i][j][k] = 0;
-      }
+      history.get(i).add(new ArrayList<Integer>());
     }   
   }
   for (int i = 0; i < 600; i++) {
@@ -74,29 +65,24 @@ void setup() {
   mtx[9][11] = 1;
   mtx[10][11] = 1;
   noStroke();
-  PImage img = createImage(600,600,ALPHA);
+ 
 }
 
 void draw() {
   int count = 0;
-  int iter = 0;
   for (int i = 0; i < 600; i++) {
-    for (int j = 0; j < 600; j++) {
-      if (histSum(i,j > 50)) {
-        img.pixels[count] = color(0);
+    for (int j = 0; j < 600; j++) { 
+      fill(5*history.get(i).get(j).size());
+      if (history.get(i).get(j).size() > 50) {
+        fill(0);
       }
-      else { 
-        img.pixels[count] = color(5*histSum(i,j));
-      }
-      count++;
+      rect(i, j, 1,1); 
     }
+    count++;
   }
+  
   count = 0;
   update();
-  iter++;
-  if (iter = 300) {
-    img.save("~/Dropbox/research/corrina/heatmap/v2/outputimage.tif");
-  }
 }
 
 void keyPressed() {
