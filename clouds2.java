@@ -19,14 +19,14 @@ void update() {
       else {
         next[i][j] = mtx[i][j];
       }
-      for (int k = 0; k > history.get(i).get(j).size(); k++) {             //history is a sparse array
+      if (mtx[i][j] != next[i][j]) {
+        history.get(i).get(j).add(0);
+      }
+      for (int k = 0; k < history.get(i).get(j).size(); k++) {             
         history.get(i).get(j).set(k, history.get(i).get(j).get(k) + 1);
         if (history.get(i).get(j).get(k) > 99) {
 	  history.get(i).get(j).remove(k);
-        }	                                                   //do not need to copy every elt.
-      }
-      if (mtx[i][j] != next[i][j]) {
-        history.get(i).get(j).add(1);
+        }	                                                   
       }
     }
   }
